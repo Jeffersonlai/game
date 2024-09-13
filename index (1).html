@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>西洋棋遊戲</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            border: 2px solid #000;
+            margin: 20px auto;
+            gap: 0; /* 格子間的間隔設為 0 */
+        }
+        .square {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eee;
+            border: 2px solid #333; /* 增加格子邊框的厚度和顏色 */
+            background-size: cover; /* 使背景圖片覆蓋格子 */
+            background-repeat: no-repeat; /* 避免圖片重複 */
+            background-position: center; /* 圖片居中 */
+        }
+        .square:nth-child(odd) {
+            background-color: #f0d9b5; /* 棋盤的淺色格子 */
+        }
+        .square:nth-child(even) {
+            background-color: #b58863; /* 棋盤的深色格子 */
+        }
+        .selected {
+            background-color: #f5c542; /* 選中的格子顏色 */
+            border: 2px solid #000; /* 選中格子的邊框顏色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="board" id="board"></div>
+    <script>
+        const board = document.getElementById('board');
+        let selectedSquare = null;
+        let pieces = [
+            'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r',
+            'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
+            'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'
+        ];
+
+        // Updated piece images URLs
+        const pieceImages = {
+            'p': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'r': 'https://w7.pngwing.com/pngs/835/245/png-transparent-battle-checkmate-chess-figure-game-rook-chess-icon-thumbnail.png',
+            'n': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'b': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'q': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'k': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'P': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'R': 'https://w7.pngwing.com/pngs/835/245/png-transparent-battle-checkmate-chess-figure-game-rook-chess-icon-thumbnail.png',
+            'N': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'B': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'Q': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png',
+            'K': 'https://cdn-icons-png.flaticon.com/512/2039/2039977.png'
+        };
+
+        function createBoard() {
+            for (let i = 0; i < 64; i++) {
+                const square = document.createElement('div');
+                square.classList.add('square');
+                square.dataset.index = i;
+                square.addEventListener('click', handleSquareClick);
+                board.appendChild(square);
+            }
+        }
+
+        function setupPieces() {
+            for (let i = 0; i < 64; i++) {
+                const square = board.children[i];
+                const piece = pieces[i];
+                if (piece !== '') {
+                    square.style.backgroundImage = `url(${pieceImages[piece]})`;
+                } else {
+                    square.style.backgroundImage = 'none'; // 清除背景圖片
+                }
+            }
+        }
+
+        function handleSquareClick(event) {
+            const index = event.target.dataset.index;
+            const piece = pieces[index];
+
+            if (selectedSquare === null) {
+                if (piece !== '') {
+                    // Select square
+                    event.target.classList.add('selected');
+                    selectedSquare = index;
+                }
+            } else {
+                if (isValidMove(selectedSquare, index)) {
+                    movePiece(selectedSquare, index);
+                }
+                board.children[selectedSquare].classList.remove('selected');
+                selectedSquare = null;
+            }
+        }
+
+        function isValidMove(fromIndex, toIndex) {
+            const piece = pieces[fromIndex];
+            const targetPiece = pieces[toIndex];
+            
+            // Check if moving to the same square
+            if (fromIndex === toIndex) return false;
+
+            // Check if target square is empty or occupied by opponent's piece
+            if (targetPiece !== '' && piece.toLowerCase() === targetPiece.toLowerCase()) return false;
+
+            // Basic move validation: Allow all moves for simplicity
+            return true;
+        }
+
+        function movePiece(fromIndex, toIndex) {
+            const piece = pieces[fromIndex];
+            pieces[toIndex] = piece;
+            pieces[fromIndex] = '';
+            setupPieces();
+        }
+
+        createBoard();
+        setupPieces();
+    </script>
+</body>
+</html>
